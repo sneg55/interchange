@@ -1,0 +1,13 @@
+/* Console styling, split by layer. Order is the cascade: tokens define, base
+   lays out the document, components dress its parts, marks add the small
+   devices they carry, states cover counts, prose, errors and overflow.
+
+   The world is the Federal Register. DESIGN.md holds the argument for it and
+   the rules that outrank convenience; tokens.css carries the palette. */
+
+@import "./tokens.css";
+@import "./base.css";
+@import "./components.css";
+@import "./marks.css";
+@import "./states.css";
+@import "./front.css";

@@ -1,0 +1,123 @@
+rules_version = '2';
+
+// Firestore security rules. Spec 6.9.
+//
+// The console reads Firestore directly from the browser, which is only safe if
+// the rules are the enforcement rather than the client. Two properties:
+//
+//   1. Every collection is READ-ONLY to every client. The only write in the
+//      whole product is the approval decision, and it goes through the
+//      authenticated Cloud Run route using Admin SDK credentials, which bypass
+//      these rules by design. So `allow write: if false` here does not disable
+//      approvals; it means approvals cannot happen any OTHER way.
+//
+//   2. An unauthenticated visitor sees nothing. Section 6.9 says so, and the
+//      feeds are public but the trust verdicts are Interchange's assertions
+//      about named organizations. Those are not anonymous-readable.
+//
+// The approver allowlist is deliberately NOT here and NOT in Firestore. A role
+// stored in the database the console can read is one misconfigured rule away
+// from being writable by the people it governs, so it lives in Cloud Run
+// configuration and is checked against the verified ID token server-side.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    // Read-only, authenticated. Listed explicitly rather than by wildcard so a
+    // collection added later is denied until someone decides it should be
+    // visible, instead of becoming world-readable by omission.
+    match /publishers/{publisherKey} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /observations/{observationId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /rule_evaluations/{evaluationId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /publisher_daily/{dailyId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /trust_transitions/{transitionId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /registry_events/{eventId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /canonical_zones/{canonicalId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /canonical_source_map/{sourceId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /reconciliation_snapshots/{cycleId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /output_artifacts/{cycleId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /evidence_packets/{packetId} {
+      // Readable so the console can show what a finding asserts. Writable only
+      // through the authenticated route, which takes `approved_by` from the
+      // verified token and refuses to overwrite an existing decision.
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /adjudications/{pairKey} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /screening_results/{resultId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /screening_incidents/{incidentId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // The blocked strings themselves: raw hostile input, kept because seeing
+    // what was blocked is the point of recording it.
+    //
+    // Denied to the client entirely. Nothing in the console reads it, and
+    // `signedIn()` means any authenticated account, so granting it would put
+    // the collected attack payloads behind the weakest check in the file. An
+    // operator who needs one reads it server-side.
+    match /blocked_text/{textHash} {
+      allow read, write: if false;
+    }
+
+    // Anything not named above is denied. A collection added later must be
+    // granted access deliberately rather than inheriting it.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

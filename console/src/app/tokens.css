@@ -1,0 +1,82 @@
+/* Tokens. The world is the Federal Register: see DESIGN.md.
+
+   The console is set as a government rulemaking document because the thing it
+   exists to get approved IS one, a notice citing USDOT's own removal policy. An
+   approver therefore reads the fleet in the same register they will publish
+   into. The register's apparatus is also this product's central invariant
+   expressed as typography: a rulemaking document states its own scope, its own
+   dates, and what it does not decide, on the face of every page.
+
+   Colour is reserved for trust state and nothing else, so the four states are
+   very nearly the only colour on the sheet. The hues are MUTCD's, the federal
+   manual that already assigns meaning to colour for this audience. */
+
+:root {
+  --desk: #e8e7e2;
+  --sheet: #fcfcfa;
+  --sheet-sunk: #f3f2ee;
+  --sheet-tint: #eceae2;
+  --ink: #17171b;
+  --ink-2: #55555e;
+  /* Darker than it looks like it should be. This carries the 11px column
+     headers and the search placeholder, so it is body text under the contrast
+     rule; at #7c7c85 it measured 4.0:1 on the sheet and had to clear 4.5. */
+  --ink-3: #6e6e77;
+  --rule: #1b1b20;
+  --rule-2: #c4c3bc;
+  --rule-3: #deddd7;
+
+  /* MUTCD. `-mark` is the saturated sign colour and is used only for a marker
+     bar; `-ink` is darkened to clear 4.5:1 on the sheet and is what text uses. */
+  --pass-mark: #0b7a45;
+  --pass: #0a6238;
+  --warn-mark: #e06a16;
+  --warn: #9c4406;
+  --warn-wash: #f6eddc;
+  --fail-mark: #c8102e;
+  --fail: #a00a22;
+  --fail-wash: #fbf0f1;
+  --unknown-mark: #8a8a92;
+  --unknown: #5f5f68;
+  /* Not a paler green. "We did not check" gets a hue nothing else uses. */
+  --unchecked-mark: #4b3d9e;
+  --unchecked: #3c3080;
+
+  --font-machine: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: var(--font-gothic), "Helvetica Neue", Arial, sans-serif;
+  --serif: var(--font-text), Charter, Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Every number here changes under a live listener and the confirmation clock
+     reflows every five seconds; proportional digits would jitter. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Uppercase Franklin at a tracked small size. The register's own label device,
+   used as a system for apparatus (ACTION, AS OF, column heads) and never
+   scattered over sections as decoration. */
+.apparatus,
+th,
+.badge,
+.stamp,
+.masthead nav a,
+button.sort {
+  font-family: var(--sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

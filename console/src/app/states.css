@@ -1,0 +1,177 @@
+/* Counts, prose, errors, empties, machine strings, overflow. See DESIGN.md. */
+
+.count {
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+}
+.count strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+/* A count that is not the whole is coloured, because "250 of 8,839" scanned as
+   completeness the moment it was the same grey as everything else. */
+.count-partial,
+.count-partial strong {
+  color: var(--warn);
+}
+
+/* ------------------------------------------------------------------- prose */
+
+/* The register's reading voice, for the text an operator reads rather than
+   scans. */
+.empty,
+.liveness,
+.colophon p,
+td.prose,
+.rendering pre {
+  font-family: var(--serif);
+}
+.empty {
+  margin: 0.75rem 0 0;
+  color: var(--ink-2);
+  font-size: 0.875rem;
+  max-width: 68ch;
+  /* These paragraphs carry the qualifications that stop a count being misread,
+     so a one-word orphan on the last line is worth avoiding. */
+  text-wrap: pretty;
+}
+.liveness {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.875rem;
+  text-wrap: pretty;
+}
+
+/* A table cell holding a sentence rather than a coded value. Without the width
+   bound one rule summary made the notice queue 1,755px wide inside a 1,350px
+   panel and pushed the Drafted column off the screen. */
+td.prose {
+  white-space: normal;
+  min-width: 32ch;
+  max-width: 62ch;
+  overflow-wrap: normal;
+  font-size: 0.875rem;
+}
+
+/* ------------------------------------------------------------------ errors */
+
+.error {
+  margin: 0.75rem 0 0;
+  padding: 0.625rem 0.875rem;
+  font-family: var(--serif);
+  font-size: 0.875rem;
+  color: var(--fail);
+  background: var(--fail-wash);
+  border: 1px solid var(--fail-mark);
+  text-wrap: pretty;
+}
+.preamble .error {
+  margin: 0;
+}
+
+/* Amber, between the green liveness line and the red alarm. "We have not
+   confirmed anything yet" is not a pass and is not a dropped connection, and
+   collapsing it into either was how the alarm learned to cry wolf. */
+/* Built like `.error` and coloured like a warning, so the two read as one
+   family at two severities rather than as two unrelated devices. */
+.notice {
+  margin: 0;
+  padding: 0.4375rem 0.75rem;
+  font-family: var(--serif);
+  font-size: 0.875rem;
+  color: var(--warn);
+  background: var(--warn-wash);
+  border: 1px solid var(--warn-mark);
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------- machine strings */
+
+/* Ids, hashes, trace ids, raw schema errors. Monospace is not worn here as a
+   costume for "technical"; it appears only where the string is machine output. */
+pre {
+  white-space: pre-wrap;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--sheet-sunk);
+  border-left: 1px solid var(--rule-2);
+  font-family: var(--font-machine);
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+/* The notice an approver is meant to read carefully, held to a readable
+   measure. At full sheet width it set at roughly 150 characters per line and
+   the eye loses its place returning to the next one. This is the text whose
+   hash the approval binds. */
+.rendering pre {
+  max-width: 72ch;
+  padding: 0.25rem 0 0.25rem 1.125rem;
+  background: var(--sheet);
+  border-left: 2px solid var(--rule-2);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* A screen's own verdict, stated at the size of a verdict rather than as one
+   more grey annotation among the counts. */
+.headline {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.875rem 0 0;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.error.headline {
+  font-family: var(--sans);
+  font-weight: 600;
+}
+
+code {
+  font-family: var(--font-machine);
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+/* ---------------------------------------------------------------- overflow */
+
+/* A wide table scrolls INSIDE the sheet rather than pushing the document wider.
+   Without it the body scrolled sideways at 390px, so the masthead scrolled away
+   with the table and the nav was clipped mid-word. */
+.scroll-x {
+  overflow-x: auto;
+  /* Thin and neutral. On a machine with always-visible scrollbars the default
+     renders as a slab across the bottom of every table. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-2) transparent;
+  /* A shadow at whichever edge has content behind it, and none at an edge that
+     has reached the end. Without it a column simply stopped at the sheet's edge,
+     which reads as a rendering bug rather than as "scroll". The `local` layers
+     are the sheet-coloured masks that ride with the content; the `scroll` layers
+     are the shadows, pinned to the container. */
+  background:
+    linear-gradient(to right, var(--sheet) 40%, rgb(252 252 250 / 0)) left center / 2rem 100%
+    no-repeat,
+    linear-gradient(to left, var(--sheet) 40%, rgb(252 252 250 / 0)) right center / 2rem 100%
+    no-repeat,
+    radial-gradient(farthest-side at 0 50%, rgb(23 23 27 / 0.16), rgb(23 23 27 / 0)) left center /
+    0.75rem 100% no-repeat,
+    radial-gradient(farthest-side at 100% 50%, rgb(23 23 27 / 0.16), rgb(23 23 27 / 0)) right center
+    / 0.75rem 100% no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+/* NOT `min-width: max-content`. That sized every table to its longest line and
+   put a scrollbar under tables with no need of one: a single long URL in an
+   error message widened the whole observations table.
+
+   A fixed floor instead, so a narrow screen scrolls the table rather than
+   squeezing it. At 390px `width: 100%` alone gave four columns of roughly nine
+   characters each and set every road name one word per line, which is legible
+   in the sense that the glyphs are visible. On any screen wider than the floor
+   `width: 100%` wins and nothing scrolls. */
+.scroll-x table {
+  width: 100%;
+  min-width: 46rem;
+}

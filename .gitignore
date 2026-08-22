@@ -1,0 +1,43 @@
+__pycache__/
+.cache/
+.DS_Store
+.env
+.next/
+.venv/
+*.log
+*.pyc
+*.tsbuildinfo
+coverage/
+dist/
+node_modules/
+
+# Spike output. The measurement it produced is quoted in the README.
+deploy_results.json
+
+# Next.js build output
+console/.next/
+console/next-env.d.ts
+console/tsconfig.tsbuildinfo
+.env.local
+.env*.local
+
+# Live fleet runtime state: the store and the retained body snapshots.
+.fleet/
+
+# Working documents. Notes, review output and agent configuration, kept local.
+# README.md and docs/architecture.md are the two documents that travel.
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.harness/
+DESIGN.md
+PRODUCT.md
+docs/SPEC.md
+docs/SPEC-implementation-notes.md
+docs/DEMO.md
+infra/README.md
+src/features/*/README.md
+product-critic-output/
+
+# Loose console captures taken while reviewing.
+/*.png

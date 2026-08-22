@@ -1,0 +1,190 @@
+{
+  "//": "Composite indexes for spec section 19.5. Firestore FAILS a query at runtime if its index is missing, so these are deployment artifacts, not optimisations. Deploy with: firebase deploy --only firestore:indexes",
+  "indexes": [
+    {
+      "//": "publisher detail timeline; the rule windows R1/R2/R5 all read this",
+      "collectionGroup": "observations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "polled_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "R5 and quarantine recovery need body-bearing polls only; a run of 304s must not satisfy them",
+      "collectionGroup": "observations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "not_modified",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "polled_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "latch history and consecutive clean-poll counting",
+      "collectionGroup": "rule_evaluations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "evaluated_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "one publisher's transition history",
+      "collectionGroup": "trust_transitions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "fleet-wide replay: state at time T is the last transition at or before T",
+      "collectionGroup": "trust_transitions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "every console chart reads the rollup, never raw observations. DESCENDING because the only query that exists asks for the most recent N days; an ASCENDING index does not serve it and Firestore refuses the query at runtime",
+      "collectionGroup": "publisher_daily",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "day",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "the notice queue: DRAFT packets, oldest first",
+      "collectionGroup": "evidence_packets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "approval_state",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "packets naming one publisher; publisher_keys is plural because a duplication finding names two",
+      "collectionGroup": "evidence_packets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_keys",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "viewport map; Firestore cannot answer a bbox query without a precomputed key",
+      "collectionGroup": "canonical_zones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "geohash_prefixes",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "last_seen_cycle",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "fleet membership at time T, for replay",
+      "collectionGroup": "registry_events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "publisher_key",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "//": "merged zones only; Firestore cannot filter on an array's length, so the reconciler writes source_count and the console filters on it rather than reading every zone",
+      "collectionGroup": "canonical_zones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "source_count",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "canonical_id",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "//": "the decided-notice log: everything out of DRAFT, newest decision first",
+      "collectionGroup": "evidence_packets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "approval_state",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "approved_at",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

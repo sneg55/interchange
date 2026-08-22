@@ -1,0 +1,385 @@
+/* Document shell: masthead, sheet, preamble, sections, tables. See DESIGN.md. */
+
+/* Ink, never browser blue: colour on this sheet is reserved for trust state,
+   and the default link blue was the one colour on several screens that no
+   state owned. Components that need something else override it. */
+a {
+  color: var(--ink);
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule-2);
+}
+a:hover {
+  text-decoration-color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ masthead */
+
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem 2.5rem;
+  flex-wrap: wrap;
+  padding: 1.125rem 1.75rem 0.625rem;
+  background: var(--sheet);
+  border-bottom: 2px solid var(--rule);
+  position: relative;
+}
+/* The second rule of the double rule. This pairing is the page's signature and
+   appears nowhere else in the console. */
+.masthead::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -5px 0;
+  height: 1px;
+  background: var(--rule);
+}
+.agency {
+  margin-right: auto;
+}
+.wordmark {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.agency-line {
+  margin: 0.0625rem 0 0;
+  font-family: var(--serif);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+.masthead nav {
+  display: flex;
+  gap: 0.25rem 1.5rem;
+  flex-wrap: wrap;
+}
+.masthead nav a {
+  color: var(--ink-2);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 0.375rem;
+  margin: 0 -0.375rem;
+  border-bottom: 2px solid transparent;
+  transition-property: color, border-color;
+  transition-duration: 120ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.masthead nav a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--rule-2);
+}
+/* Which part of the document you are reading. Four near-identical screens with
+   nothing marked left the content to settle it, and the content does not. */
+.masthead nav a[aria-current="page"] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--rule);
+}
+/* The certification line: who is signed in, and the way out. Portalled up from
+   AuthGate so it stops sitting on top of the content it is not part of. */
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  min-height: 32px;
+}
+
+/* ------------------------------------------------------------------ the sheet */
+
+.sheet {
+  max-width: 1560px;
+  margin: 1.5rem auto;
+  padding: 0 2rem 2rem;
+  background: var(--sheet);
+  border: 1px solid var(--rule-2);
+  /* Paper does not have rounded corners. */
+  border-radius: 0;
+  /* One sheet lifted off the desk. Offset and blur, never a flat halo. */
+  box-shadow:
+    0 1px 2px rgb(23 23 27 / 0.06),
+    0 8px 28px rgb(23 23 27 / 0.07);
+  /* The one place a stray wide child could still widen the document. */
+  overflow-x: hidden;
+}
+.colophon {
+  max-width: 1560px;
+  margin: 0 auto 3rem;
+  padding: 0 2rem;
+  display: flex;
+  gap: 0.875rem;
+  align-items: baseline;
+  color: var(--ink-2);
+}
+.colophon p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 0.8125rem;
+  max-width: 68ch;
+}
+
+/* ----------------------------------------------------------------- preamble */
+
+/* The labeled block a rulemaking document opens with. Liveness and the totals
+   live here, so a reader is given the scope of the page before any row of it. */
+.preamble {
+  background: var(--sheet-sunk);
+  border-bottom: 1px solid var(--rule-2);
+  margin: 0 -2rem;
+  padding: 0.75rem 2rem 0.875rem;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.1875rem 1.25rem;
+  align-items: baseline;
+}
+.preamble > dt {
+  color: var(--ink-3);
+  padding-top: 0.125rem;
+}
+.preamble > dd {
+  margin: 0;
+  min-width: 0;
+}
+/* A screen with no preamble (signed out, or an error before one could be built)
+   would otherwise open flush against the top edge of the sheet. */
+.sheet > *:first-child:not(.preamble) {
+  margin-top: 1.5rem;
+}
+
+/* ----------------------------------------------------------------- sections */
+
+.panel {
+  margin: 1.75rem 0 0;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem 1.5rem;
+  flex-wrap: wrap;
+  padding: 0 0 0.375rem;
+  border-bottom: 1px solid var(--rule);
+}
+.panel-head h2 {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+/* A section nested inside another is a sub-part of the same document, so it
+   steps down rather than opening a second box. */
+.panel .panel {
+  margin-top: 1.25rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--rule-3);
+}
+.panel .panel .panel-head {
+  border-bottom-color: var(--rule-2);
+}
+.panel .panel .panel-head h2 {
+  font-size: 0.9375rem;
+}
+
+/* ------------------------------------------------------------------- tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.375rem 0.75rem;
+  /* Rules, never boxes. Horizontal only. */
+  border-bottom: 1px solid var(--rule-3);
+}
+th {
+  color: var(--ink-3);
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.3125rem;
+  /* A heading should wrap at a space or not at all; breaking it mid-word gave
+     "Latenc/y" and "Schem/a". */
+  overflow-wrap: normal;
+}
+td {
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+tbody tr:last-child td {
+  border-bottom: 1px solid var(--rule);
+}
+/* Seven columns of coded values is a long way for an eye to travel. */
+tbody tr:hover td {
+  background: var(--sheet-sunk);
+}
+/* A two-column label/value table. The label column sizes to its content so the
+   value sits next to the question it answers. */
+.kv th {
+  width: 1%;
+  white-space: nowrap;
+  border-bottom-color: var(--rule-3);
+}
+.kv td {
+  font-size: 0.875rem;
+}
+
+/* A link fills its cell: the hit area is the row an operator aims at, not the
+   sixteen pixels of underlined text inside it. */
+td a,
+button.rowlink {
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  /* Flex collapses the whitespace between text nodes, so the space before
+     "/ austin" has to come back as layout. */
+  gap: 0.3125rem;
+  flex-wrap: wrap;
+  min-height: 30px;
+  padding: 0.375rem 0.75rem;
+  margin: -0.375rem -0.75rem;
+  /* No standing underline. Every cell in the column is a link, so the
+     affordance is positional and consistent; forty underlines down the widest
+     column was the loudest thing on a sheet whose only job is to make four
+     trust colours findable. It returns on hover and on focus. */
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition-property: background-color;
+  transition-duration: 120ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+td a:hover,
+td a:focus-visible,
+button.rowlink:hover:not(:disabled) {
+  background: var(--sheet-tint);
+  text-decoration: underline;
+}
+/* A button that identifies a row rather than commanding an action. Everywhere
+   else "open this row" is a link, and 250 bordered buttons in a table said
+   "press me" 250 times for what is a selection. */
+button.rowlink {
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+button.rowlink[aria-pressed="true"] {
+  color: var(--warn);
+  font-weight: 600;
+}
+/* Scaling a full-width cell drags the column grid with it. */
+button.rowlink:active:not(:disabled),
+button.sort:active:not(:disabled) {
+  scale: 1;
+}
+/* The selected row, marked where it was clicked, and winning over the hover
+   tint: which row you PICKED must stay distinct from the one you are passing. */
+tr.selected td,
+tbody tr.selected:hover td {
+  background: var(--warn-wash);
+  box-shadow: inset 3px 0 0 var(--warn-mark);
+}
+
+/* The button fills its header cell, so the target is the column heading rather
+   than the eight characters of its label. */
+button.sort {
+  display: flex;
+  align-items: center;
+  /* Flex trims the whitespace between text nodes; the gap puts it back. */
+  gap: 0.375rem;
+  white-space: nowrap;
+  width: 100%;
+  min-height: 26px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0.375rem 0.75rem;
+  margin: -0.375rem -0.75rem;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+button.sort:hover {
+  color: var(--ink);
+  background: var(--sheet-tint);
+}
+
+/* Keyboard focus is visible everywhere. The sortable headers are buttons
+   precisely so the keyboard can reach them, which is worth nothing if the
+   focused one cannot be seen. :focus-visible, so a mouse press leaves no ring. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+/* An operator watching a fleet board did not ask for motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Said only where it is true. The fleet board drops three columns below the
+   breakpoint, and any cap or truncation this product applies is stated in the
+   output; a screen that quietly shows four of seven columns is a screen making
+   an unlabelled partial claim. */
+.narrow-only {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .masthead {
+    padding: 0.875rem 1rem 0.5rem;
+  }
+  .sheet {
+    margin: 0.75rem 0;
+    padding: 0 1rem 1.5rem;
+    border-left: none;
+    border-right: none;
+  }
+  .preamble {
+    margin: 0 -1rem;
+    padding: 0.75rem 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .preamble > dt {
+    padding-top: 0.5rem;
+  }
+  .colophon {
+    padding: 0 1rem;
+  }
+
+  /* Column priority instead of a horizontal drag. At 390px the board wanted
+     828px of table inside a 358px box, so churn, version, cadence, last polled
+     and latching all sat behind a sideways scroll with nothing on screen
+     indicating they existed. Dropping the three that are context rather than
+     verdict leaves the sentence the board is for: who, what state, when we last
+     looked, and which rule is holding them there. */
+  .col-secondary {
+    display: none;
+  }
+  /* Scoped to this table. The floor is right for the wide tables that keep all
+     their columns; the fleet board has just given three of its away. */
+  .scroll-x .fleet-table {
+    min-width: 0;
+  }
+  .narrow-only {
+    display: inline;
+  }
+}

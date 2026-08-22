@@ -1,0 +1,346 @@
+/* Front-page apparatus and the footnote device: the hero ruler, Figure 1, the
+   fleet-wide transitions log, and table footnotes. Split by layer like the
+   rest; loaded after marks so its overrides win. See DESIGN.md. */
+
+/* -------------------------------------------------------------- hero ruler */
+
+/* The front page's opening statement: the same measurement every screen gets,
+   promoted to the scale of a verdict. Only the scale changes; the counts, the
+   segments and the filter note are the standing component's. */
+.ruler-hero .ruler-track {
+  height: 22px;
+}
+.ruler-hero .ruler-keys {
+  gap: 0.5rem 2.25rem;
+  margin-top: 0.625rem;
+}
+.ruler-hero .ruler-keys .count {
+  font-size: 0.9375rem;
+}
+.ruler-hero .ruler-keys .count strong {
+  font-size: 1.375rem;
+  font-weight: 700;
+  /* The number reads from across a demo room; the noun stays annotation-size. */
+  line-height: 1;
+}
+
+/* ----------------------------------------------------------- front columns */
+
+/* Figure left, log right, like a register page with a plate and its adjacent
+   column of entries. One column again once the sheet narrows. */
+.front-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 0 3rem;
+  align-items: start;
+}
+@media (max-width: 1080px) {
+  .front-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------- figure 1 */
+
+.fig {
+  margin: 1.5rem 0 0;
+}
+.fig-map {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* Land as slightly sunk paper, state lines as the paper showing through. Ink
+   is reserved for the marks, which is what makes forty of them scan. */
+.fig-state {
+  fill: var(--sheet-sunk);
+  stroke: var(--sheet);
+  stroke-width: 1;
+}
+.fig-state[data-hosts] {
+  fill: var(--sheet-tint);
+}
+.fig-mark {
+  cursor: pointer;
+}
+.fig-hit {
+  fill: transparent;
+}
+.fig-mark:hover .fig-hit,
+.fig-mark:focus-visible .fig-hit {
+  fill: rgb(23 23 27 / 0.08);
+  transition: fill 120ms cubic-bezier(0.2, 0, 0, 1);
+}
+.fig-caption {
+  margin-top: 0.5rem;
+  font-family: var(--serif);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+.fig-caption .apparatus {
+  color: var(--ink-3);
+  margin-right: 0.25rem;
+}
+.fig-unplaced {
+  font-size: 0.8125rem;
+  margin-top: 0.375rem;
+}
+
+/* ---------------------------------------------------------------- figure 2 */
+
+/* Merged zones as line work over the same basemap, viewBox-fitted to the
+   zones, so strokes are non-scaling in the markup. Colour law holds: the ink
+   is ink, and the only colour is the selection, which borrows the selected
+   table row's warn tone so one convention marks "the zone you picked". */
+/* Width and shape come from the component: it sets `aspect-ratio` to the
+   fitted viewBox's own proportions and caps width so height stays near 30rem,
+   which is what keeps the frame on the data's neighbourhood instead of
+   letterboxing a narrow corridor into the whole seaboard. */
+.zonemap {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.zonemap-state {
+  fill: var(--sheet-sunk);
+  /* Visible at the fitted zoom, where a sheet-on-sheet hairline vanished. */
+  stroke: var(--rule-3);
+}
+.zone {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.zone-selected {
+  stroke: var(--warn-mark);
+  stroke-width: 3.5;
+}
+.zone-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  stroke-linecap: round;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.zone-hit:hover {
+  stroke: rgb(224 106 22 / 0.22);
+}
+
+/* ------------------------------------------------------------------ docket */
+
+/* Entries, not a table: a date column and the transition sentence. */
+.docket {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+}
+.docket li {
+  display: grid;
+  /* Wide enough for "12 Aug 2026, 05:24 UTC" on one line. */
+  grid-template-columns: 10rem minmax(0, 1fr);
+  gap: 0 0.75rem;
+  padding: 0.4375rem 0;
+  border-bottom: 1px solid var(--rule-3);
+  font-size: 0.8125rem;
+}
+.docket li:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+.docket-when {
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.docket-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.625rem;
+  min-width: 0;
+}
+.docket-move {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+.docket-arrow {
+  color: var(--ink-3);
+}
+@media (max-width: 480px) {
+  .docket li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem 0;
+  }
+}
+
+/* ---------------------------------------------------------- footnote marks */
+
+/* The register's own device for a qualification: a mark on the exact thing
+   qualified, the sentence at the foot of the table behind a short rule. */
+.fnmark {
+  font-family: var(--sans);
+  line-height: 0;
+}
+.fnmark a {
+  color: var(--ink-3);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-decoration: none;
+  /* The visible glyph is tiny; the target is not. */
+  padding: 0.375rem;
+  margin: -0.375rem;
+}
+.fnmark a:hover,
+.fnmark a:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+}
+/* A marked sortable header holds two controls: the sort button and the note's
+   anchor. The button gives up its full-cell claim so the anchor has somewhere
+   to exist beside it. */
+th.th-marked {
+  white-space: nowrap;
+}
+th.th-marked button.sort {
+  display: inline-flex;
+  width: auto;
+  margin-right: 0;
+  padding-right: 0.25rem;
+}
+
+/* -------------------------------------------------------------- issue line */
+
+/* The register's "this is today's issue", from the real clock. */
+.issue-line {
+  margin: 0.3125rem 0 0;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------- cover */
+
+/* The signed-out gate as the volume's cover: title statement, contents, the
+   access note. Most visitors' entire first impression of the product. */
+.cover {
+  max-width: 62ch;
+  margin-inline: auto;
+  padding: 3.5rem 0 4.5rem;
+}
+.cover-lede {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.375rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.cover .gate-steps {
+  margin-top: 1.5rem;
+  gap: 0.75rem;
+}
+.cover .empty {
+  margin-top: 1.5rem;
+}
+
+/* ---------------------------------------------------------- definition card */
+
+/* The definition, at the term: a printed footnote card. Fixed-position so the
+   `.scroll-x` tables its triggers mostly live in cannot clip it. It replaces
+   the browser `title` slip, which no keyboard or touch screen ever saw. */
+.defcard {
+  position: fixed;
+  z-index: 10;
+  display: block;
+  width: min(320px, calc(100vw - 1rem));
+  padding: 0.5rem 0.75rem 0.5625rem;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  /* Lifted like the sheet itself: offset and blur, never a flat halo. */
+  box-shadow:
+    0 1px 2px rgb(23 23 27 / 0.08),
+    0 6px 18px rgb(23 23 27 / 0.14);
+  /* Triggers sit inside links, buttons and uppercase apparatus; the card
+     resets all of it to reading text. */
+  font-family: var(--serif);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration: none;
+  text-align: left;
+  white-space: normal;
+  color: var(--ink);
+  cursor: default;
+  text-wrap: pretty;
+}
+.defcard-term {
+  display: block;
+  color: var(--ink-3);
+}
+/* What a rule asserts, as the entry's own subtitle line. */
+.defcard-detail {
+  display: block;
+  margin-top: 0.125rem;
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.defcard-body {
+  display: block;
+  margin-top: 0.1875rem;
+  color: var(--ink-2);
+}
+
+/* --------------------------------------------------------------- footnotes */
+
+.footnotes {
+  margin: 0.75rem 0 0;
+  max-width: 68ch;
+}
+/* The classic footnote separator: a short rule, not a full-width one. */
+.footnotes::before {
+  content: "";
+  display: block;
+  width: 8rem;
+  border-top: 1px solid var(--rule-2);
+  margin-bottom: 0.375rem;
+}
+.footnotes ol {
+  margin: 0;
+  padding: 0 0 0 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+  font-family: var(--serif);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+.footnotes li {
+  text-wrap: pretty;
+  /* The anchor target: arriving from a mark must land the note in view. */
+  scroll-margin-top: 5rem;
+}
+.footnotes li::marker {
+  font-family: var(--sans);
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+}
+/* The narrow-width truncation note: unnumbered, because the columns it names
+   are not on screen to carry a mark. Base `.narrow-only` shows it at the same
+   breakpoint that hides them; this only removes the list number. */
+.footnotes li.narrow-only {
+  list-style: none;
+  display: none;
+}
+@media (max-width: 720px) {
+  .footnotes li.narrow-only {
+    display: list-item;
+  }
+}
