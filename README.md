@@ -45,9 +45,9 @@ python3 scripts/run_cycle.py                   # one full fleet cycle
 python3 -m unittest discover -s tests          # 473 tests
 ```
 
-The full suite is CPU-bound rather than slow on the network. `test_fleet_end_to_end` runs a
-complete cycle over the snapshot and dominates the runtime; the other modules finish in
-seconds.
+The suite is CPU-bound rather than slow on the network, and one module accounts for almost
+all of it: `test_pipeline` takes about 1,824s, `test_fleet_end_to_end` 161s, and every other
+module finishes in under 5s. CI runs `test_pipeline` as its own job for that reason.
 
 The console:
 
