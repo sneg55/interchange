@@ -4,6 +4,7 @@
 [![python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![WZDx 4.2](https://img.shields.io/badge/WZDx-4.2-informational)](https://www.transportation.gov/av/data/wzdx)
 [![offline reproducible](https://img.shields.io/badge/offline-reproducible-success)](#reproduce-it)
+[![MIT license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 A governed ingestion fleet over the 40 organizations that publish federal WZDx work zone
 feeds. One agent per publisher, a deterministic trust gate, cross-publisher reconciliation,
