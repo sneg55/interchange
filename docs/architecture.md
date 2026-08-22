@@ -9,28 +9,28 @@ merged feed and the operator console.
 flowchart TB
   subgraph Federal["Federal sources"]
     REG[("WZDx Feed Registry<br/>Socrata 69qe-yiui")]
-    FEEDS[("40 publisher feeds<br/>WZDx 3.1 to 4.2")]
+    FEEDS[("41 feeds, 40 organizations<br/>WZDx 3.1 to 4.2")]
   end
 
   subgraph Fleet["Ingestion fleet"]
-    WARDEN["Registry Warden<br/><i>6.1</i>"]
-    AGENTS["Publisher Agents<br/>one per (org, feedname)<br/><i>6.2, 6.3</i>"]
+    WARDEN["Registry Warden"]
+    AGENTS["Publisher Agents<br/>one per (org, feedname)"]
   end
 
   subgraph Gate["The gate: deterministic, no model"]
-    SCORER["Trust Scorer<br/>R1 to R6, ruleset v1<br/><i>6.4</i>"]
+    SCORER["Trust Scorer<br/>R1 to R6, ruleset v1"]
     STATE{"ADMIT · WATCH<br/>QUARANTINE · NO_ACCESS"}
   end
 
   subgraph Merge["Reconciliation and output"]
-    SCREEN["Screener<br/>Model Armor, fails closed<br/><i>6.5</i>"]
-    RECON["Reconciler<br/>3 tiers, 1 zone per publisher<br/><i>6.6</i>"]
-    PUB["Republisher<br/>validates its OWN output<br/><i>6.8</i>"]
+    SCREEN["Screener<br/>Model Armor, fails closed"]
+    RECON["Reconciler<br/>3 tiers, 1 zone per publisher"]
+    PUB["Republisher<br/>validates its OWN output"]
   end
 
   subgraph Human["Human in the loop"]
-    PACKET["Evidence Packet<br/><i>6.7</i>"]
-    CONSOLE["Operator console<br/><i>6.9</i>"]
+    PACKET["Evidence Packet"]
+    CONSOLE["Operator console"]
     APPROVE{{"Approval gate<br/>terminal state:<br/>READY TO SEND"}}
   end
 
@@ -52,9 +52,12 @@ flowchart TB
   RECON -.->|"Tier 2 only"| GEM
   PACKET -.->|"prose only"| GEM
 
-  style STATE fill:#1a3a2a,stroke:#2ea043
-  style GEM fill:#3a2a1a,stroke:#d29922
-  style APPROVE fill:#3a1a1a,stroke:#da3633
+  classDef gate fill:#0d3b25,stroke:#2ea043,stroke-width:2px,color:#e8ffef
+  classDef model fill:#3d2c0d,stroke:#d29922,stroke-width:2px,color:#fff4d6
+  classDef human fill:#3d1417,stroke:#da3633,stroke-width:2px,color:#ffe3e3
+  class STATE gate
+  class GEM model
+  class APPROVE human
 ```
 
 **Read the two dotted lines first.** They are the only paths a model touches, and both are

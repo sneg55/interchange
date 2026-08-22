@@ -10,15 +10,14 @@
 #     python3 -m unittest discover -s tests
 #
 # That separation is deliberate. A build that could not run without cloud
-# credentials would make the access question in section 19.3 block everything
-# rather than only M1 and M3.
+# credentials would put the whole system behind an access question.
 
 # --- required for the offline path -----------------------------------------
 jsonschema>=4.18          # referencing-based resolver; RefResolver is deprecated
 
 # --- required only to reach Google Cloud ------------------------------------
-google-cloud-modelarmor>=0.1.0   # src/services/model_armor.py (spec 6.5)
-google-genai>=1.0.0              # src/services/gemini.py (spec 6.6 Tier 2, 6.7)
-google-cloud-aiplatform[agent_engines]>=1.163  # scripts/deploy_agents.py (19.10)
-google-cloud-firestore>=2.16     # the store behind spec 8
+google-cloud-modelarmor>=0.1.0   # src/services/model_armor.py
+google-genai>=1.0.0              # src/services/gemini.py
+google-cloud-aiplatform[agent_engines]>=1.163  # scripts/deploy_agents.py
+google-cloud-firestore>=2.16     # the durable store
 requests>=2.32                   # the reasoning-engine :query endpoint

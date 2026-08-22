@@ -1,9 +1,17 @@
 # Interchange
 
+[![tests](https://github.com/sneg55/interchange/actions/workflows/tests.yml/badge.svg)](https://github.com/sneg55/interchange/actions/workflows/tests.yml)
+[![python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
+[![WZDx 4.2](https://img.shields.io/badge/WZDx-4.2-informational)](https://www.transportation.gov/av/data/wzdx)
+[![offline reproducible](https://img.shields.io/badge/offline-reproducible-success)](#reproduce-it)
+
 A governed ingestion fleet over the 40 organizations that publish federal WZDx work zone
 feeds. One agent per publisher, a deterministic trust gate, cross-publisher reconciliation,
 screened untrusted text, and one evidence packet that serves both the data consumer and the
 registry owner.
+
+The registry lists 41 publisher feeds across those 40 organizations, because a publisher is
+keyed on organization and feed name, and Colorado DOT publishes two.
 
 ## The problem, in one example
 
@@ -74,7 +82,66 @@ keeps IDs stable, so a restart resumes the fleet instead of starting a new one.
 | Republisher | What enters the merged feed, and whether to publish at all |
 | Console | The only surface a human sees, and the approval gate |
 
-The data path and the diagram are in `docs/architecture.md`.
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph Federal["Federal sources"]
+    REG[("WZDx Feed Registry<br/>Socrata 69qe-yiui")]
+    FEEDS[("41 feeds, 40 organizations<br/>WZDx 3.1 to 4.2")]
+  end
+
+  subgraph Fleet["Ingestion fleet"]
+    WARDEN["Registry Warden"]
+    AGENTS["Publisher Agents<br/>one per (org, feedname)"]
+  end
+
+  subgraph Gate["The gate: deterministic, no model"]
+    SCORER["Trust Scorer<br/>R1 to R6, ruleset v1"]
+    STATE{"ADMIT · WATCH<br/>QUARANTINE · NO_ACCESS"}
+  end
+
+  subgraph Merge["Reconciliation and output"]
+    SCREEN["Screener<br/>Model Armor, fails closed"]
+    RECON["Reconciler<br/>3 tiers, 1 zone per publisher"]
+    PUB["Republisher<br/>validates its OWN output"]
+  end
+
+  subgraph Human["Human in the loop"]
+    PACKET["Evidence Packet"]
+    CONSOLE["Operator console"]
+    APPROVE{{"Approval gate<br/>terminal state:<br/>READY TO SEND"}}
+  end
+
+  GEM["Gemini"]
+
+  REG --> WARDEN --> AGENTS
+  FEEDS --> AGENTS
+  AGENTS -->|Observation| SCORER --> STATE
+  STATE -->|"ADMIT / WATCH only"| RECON
+  STATE -->|transition| PACKET
+  SCREEN --> RECON
+  SCREEN --> PUB
+  SCREEN --> PACKET
+  RECON --> PUB
+  PUB -->|"merged WZDx 4.2"| OUT[("Consumers")]
+  PACKET --> CONSOLE --> APPROVE
+  APPROVE -.->|"never auto-sent"| REGOWNER["Registry owner"]
+
+  RECON -.->|"Tier 2 only"| GEM
+  PACKET -.->|"prose only"| GEM
+
+  classDef gate fill:#0d3b25,stroke:#2ea043,stroke-width:2px,color:#e8ffef
+  classDef model fill:#3d2c0d,stroke:#d29922,stroke-width:2px,color:#fff4d6
+  classDef human fill:#3d1417,stroke:#da3633,stroke-width:2px,color:#ffe3e3
+  class STATE gate
+  class GEM model
+  class APPROVE human
+```
+
+Gemini hangs off the side of the diagram on dotted lines, and that is the point. It has no
+edge into the gate. The poll sequence, the two content hashes, where state lives and what is
+wired against what is still a port are in `docs/architecture.md`.
 
 ## Three design decisions worth arguing with
 
