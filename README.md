@@ -7,9 +7,10 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 A governed ingestion fleet over the 40 organizations that publish federal WZDx work zone
-feeds. One agent per publisher, a deterministic trust gate, cross-publisher reconciliation,
-screened untrusted text, and one evidence packet that serves both the data consumer and the
-registry owner.
+feeds. It runs one agent per publisher, gates them on a deterministic trust score,
+reconciles zones that several publishers describe, screens their free text before it reaches
+anything, and writes one evidence packet that serves the data consumer and the registry
+owner alike.
 
 The registry lists 41 publisher feeds across those 40 organizations, because a publisher is
 keyed on organization and feed name, and Colorado DOT publishes two.
@@ -140,8 +141,7 @@ flowchart TB
   class APPROVE human
 ```
 
-Gemini hangs off the side of the diagram on dotted lines, and that is the point. It has no
-edge into the gate. The poll sequence, the two content hashes, where state lives and what is
+Gemini hangs off the side of the diagram on dotted lines with no edge into the gate. The poll sequence, the two content hashes, where state lives and what is
 wired against what is still a port are in `docs/architecture.md`.
 
 ## Three design decisions worth arguing with
@@ -201,7 +201,8 @@ infra/                          Firestore security rules and composite indexes
 ## Prior work
 
 `scripts/` predates the build and is disclosed as prior-art tooling. Its probes reproduce the
-research figures and read public federal data only: no API keys, no writes.
+research figures. They read public federal data, they take no credentials, and they write
+nothing.
 
 ```bash
 python3 scripts/wzdx_feed_health.py --validate-stale --text-surface
