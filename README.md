@@ -33,6 +33,35 @@ $ python3 scripts/run_cycle.py
 "published": true, "validation": { "schema_version": "4.2", "error_count": 0 }
 ```
 
+## See it live
+
+The operator console is running at
+**https://interchange-console-xl55uzo43q-uc.a.run.app**.
+
+Sign in with any Google account. Every account gets read-only viewer access; the
+Firestore security rules deny writes to all clients, so there is nothing a visitor can
+break. The one write in the product, approving a notice, is restricted to an allowlist
+checked server-side against the verified ID token, which is why the demo video shows the
+approval instead of inviting you to make one: approvals land in the live audit trail, and
+the audit trail is the product.
+
+A tour that hits the argument in order:
+
+1. The fleet board. Trust states across the fleet, with the key-gated feeds shown as
+   `NO ACCESS` rather than counted as passing.
+2. **Utah DOT / udot**, from the board. Two rules firing: a timestamp three years stale
+   against a declared 15-minute cadence, and 744 active zones every one of which has
+   already ended. The observation log below shows the same verdict on every poll.
+3. The notice queue, then the Utah packet. The approve button stays disabled until the
+   registry notice tab has been opened, because approval records a hash of the exact text
+   the approver read.
+4. Output health. The merged feed validated against the official WZDx 4.2 schema before
+   publication, with every exclusion named and the arithmetic closing.
+5. `/glossary`. Six rules, and four distinct words for absence, none of which is a pass.
+
+When scheduled polling is suspended, the masthead carries a standing notice saying so and
+dating the data; everything on screen is the real collected history either way.
+
 ## Reproduce it
 
 Everything here runs offline, with no cloud account and no credentials, against a

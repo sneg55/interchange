@@ -13,6 +13,11 @@
 # so the deployed console cannot end up pointed at a different project than the
 # one it writes to. Those values are public by design (see console/src/lib/env.ts).
 #
+# INTERCHANGE_STANDING_NOTICE, if set in the caller's environment, is printed
+# in the masthead on every route. Set it when suspending scheduled polling so
+# the sheet states its own staleness; redeploy with it unset to clear it. The
+# `^|^` delimiter lets the notice text contain commas.
+#
 # They are RUNTIME environment, not build arguments, which is the opposite of the
 # usual advice for NEXT_PUBLIC_ and is correct here: `env.ts` reads
 # `process.env[name]` dynamically, so Next's build-time inlining cannot see it,
@@ -57,7 +62,7 @@ gcloud run deploy "$SERVICE" \
   --region="$REGION" \
   --source="$CONSOLE" \
   --allow-unauthenticated \
-  --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT,INTERCHANGE_APPROVERS=$APPROVERS,NEXT_PUBLIC_FIREBASE_API_KEY=$API_KEY,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$AUTH_DOMAIN" \
+  --set-env-vars="^|^GOOGLE_CLOUD_PROJECT=$PROJECT|INTERCHANGE_APPROVERS=$APPROVERS|NEXT_PUBLIC_FIREBASE_API_KEY=$API_KEY|NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$AUTH_DOMAIN|INTERCHANGE_STANDING_NOTICE=${INTERCHANGE_STANDING_NOTICE:-}" \
   --cpu=1 --memory=1Gi --min-instances=0 --max-instances=4
 
 URL=$(gcloud run services describe "$SERVICE" --project="$PROJECT" --region="$REGION" \

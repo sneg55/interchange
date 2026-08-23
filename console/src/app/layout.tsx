@@ -75,6 +75,11 @@ export default function RootLayout({ children }: { children: ReactNode }): React
               Governed ingestion over the federal WZDx publisher registry
             </p>
             <IssueLine />
+            {env().standingNotice !== null && (
+              <p className="standing-notice">
+                <span className="apparatus">Standing notice</span> {env().standingNotice}
+              </p>
+            )}
           </div>
           <MastheadNav config={env().firebaseWebConfig} />
           {/* On every route, including the ungated glossary. This used to be an

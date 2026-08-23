@@ -19,6 +19,12 @@ export interface Env {
   serviceAccountJson: string | null
   /** Verified identities permitted to move a packet out of DRAFT. */
   approvers: ReadonlySet<string>
+  /**
+   * Operator-declared standing notice, printed in the masthead on every route.
+   * Set while scheduled polling is suspended so the sheet states its own
+   * staleness instead of leaving readers to infer it from old timestamps.
+   */
+  standingNotice: string | null
   /** Client-side Firebase config, safe to ship to the browser. */
   firebaseWebConfig: {
     apiKey: string
@@ -76,6 +82,7 @@ export function env(): Env {
     // is the safe direction: a misconfigured deployment should stall the notice
     // queue, not open it.
     approvers: new Set(list),
+    standingNotice: read('INTERCHANGE_STANDING_NOTICE') || null,
     firebaseWebConfig:
       apiKey && authDomain
         ? {
