@@ -57,7 +57,11 @@ class Env(BaseSettings):
     # for one word against a response schema and the notice drafter writes two
     # paragraphs from facts it is forbidden to add to; neither is reasoning-bound,
     # and this runs against every ambiguous pair in a cycle.
-    gemini_model: str = "gemini-2.5-flash"
+    #
+    # The 3.x models are served only from the `global` location. Pointing at one
+    # while GOOGLE_CLOUD_LOCATION is a region gives 404 on every call, which the
+    # adjudicator would record as UNSURE rather than as an outage.
+    gemini_model: str = "gemini-3.5-flash"
 
     # ── Model Armor ──────────────────────────────────────────────────────────
     # Screening fails closed. An unset template is a valid production state and

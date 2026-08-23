@@ -169,7 +169,9 @@ Environment=GCS_BUCKET_OUTPUT=$OUTPUT_BUCKET
 # for anyone with a shell on the box to read.
 Environment=GOOGLE_GENAI_USE_VERTEXAI=true
 Environment=GOOGLE_CLOUD_PROJECT=$PROJECT
-Environment=GOOGLE_CLOUD_LOCATION=$REGION
+# `global`, not $REGION: the Gemini 3.x models are served only from the global
+# endpoint and 404 in us-central1. Model Armor stays regional via GCP_REGION.
+Environment=GOOGLE_CLOUD_LOCATION=global
 ExecStart=/opt/interchange/.venv/bin/python scripts/run_live_cycle.py --store firestore --project $PROJECT --root /opt/interchange/.fleet --interval $INTERVAL --screener $SCREENER --adjudicator $ADJUDICATOR --drafter $DRAFTER --output-bucket $OUTPUT_BUCKET
 Restart=always
 RestartSec=30

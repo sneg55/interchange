@@ -29,7 +29,7 @@ from typing import Any
 
 from src.features.reconciler.matching import CandidatePair, core, road_event_id
 
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-3.5-flash"
 PROMPT_VERSION = "adjudicate-v1"
 MAX_ATTEMPTS = 2
 
