@@ -6,23 +6,37 @@
 [![offline reproducible](https://img.shields.io/badge/offline-reproducible-success)](#reproduce-it)
 [![MIT license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
-A governed ingestion fleet over the 40 organizations that publish federal WZDx work zone
-feeds. It runs one agent per publisher, gates them on a deterministic trust score,
-reconciles zones that several publishers describe, screens their free text before it reaches
-anything, and writes one evidence packet that serves the data consumer and the registry
-owner alike.
+Interchange decides, continuously and deterministically, which of the government agencies
+publishing federal work zone data to believe, and republishes only the data that is
+currently earning that belief.
 
-The registry lists 41 publisher feeds across those 40 organizations, because a publisher is
-keyed on organization and feed name, and Colorado DOT publishes two.
+## The problem
 
-## The problem, in one example
+State DOTs and local agencies publish work zone feeds under the federal WZDx
+specification, and navigation services consume those feeds to route drivers around road
+work. The federal pipeline checks that the feeds are well formed. Nothing checks whether
+they are true.
 
-Utah DOT's work zone feed passes the official USDOT validator with zero errors. It also
-asserts 744 work zones active, every one of them with an end date already in the past, on a
-feed whose `update_date` has not moved in over three years.
+Utah DOT's feed passes the official USDOT validator with zero errors. It also asserts 744
+active work zones, every one with an end date already in the past, on a feed whose
+`update_date` has not moved in over three years. A navigation service consuming it routes
+drivers around 744 closures that no longer exist, and every automated check in the
+pipeline says the data is fine. Conformance and trustworthiness are different properties,
+and only one of them was being measured.
 
-Conformance is not trustworthiness, and nothing in the federal pipeline tells them apart.
-Interchange does, deterministically, and shows its working.
+## The answer
+
+Interchange runs one agent per publisher over every feed in the federal registry and
+scores each publisher continuously on six versioned rules: reachability, freshness,
+conformance, internal contradiction, and churn. The verdict is `ADMIT`, `WATCH`, or
+`QUARANTINE`, and it is deterministic, so the same observations always produce the same
+verdict and the verdict can be defended to the agency it names. Only data from currently
+trusted publishers enters the merged output feed, and Interchange validates that feed
+against the official schema before it will publish it. Gemini works at the edges,
+resolving ambiguous duplicate zones and drafting notice prose. It never decides trust,
+and nothing leaves the system without a named human approving it.
+
+One offline cycle, catching Utah:
 
 ```
 $ python3 scripts/run_cycle.py
@@ -33,6 +47,16 @@ $ python3 scripts/run_cycle.py
 "published": true, "validation": { "schema_version": "4.2", "error_count": 0 }
 ```
 
+## What you get
+
+Three artifacts, serving two audiences:
+
+- **A merged feed**, for data consumers: one WZDx 4.2 document combining every trusted
+  publisher, deduplicated, schema-validated before every publish.
+- **An operator console**, for whoever runs the fleet: every publisher's current state,
+  the rules firing against it, and the observation history behind them.
+- **Evidence packets**, for the registry owner: what a finding asserts and the
+  observations that back it, held as a draft until a named human approves it.
 ## See it live
 
 The operator console is running at
@@ -49,9 +73,8 @@ A tour that hits the argument in order:
 
 1. The fleet board. Trust states across the fleet, with the key-gated feeds shown as
    `NO ACCESS` rather than counted as passing.
-2. **Utah DOT / udot**, from the board. Two rules firing: a timestamp three years stale
-   against a declared 15-minute cadence, and 744 active zones every one of which has
-   already ended. The observation log below shows the same verdict on every poll.
+2. **Utah DOT / udot**, from the board. The two rules firing, and the observation log
+   below them showing the same verdict on every poll: valid every time, wrong every time.
 3. The notice queue, then the Utah packet. The approve button stays disabled until the
    registry notice tab has been opened, because approval records a hash of the exact text
    the approver read.
@@ -62,53 +85,18 @@ A tour that hits the argument in order:
 When scheduled polling is suspended, the masthead carries a standing notice saying so and
 dating the data; everything on screen is the real collected history either way.
 
-## Reproduce it
-
-Everything here runs offline, with no cloud account and no credentials, against a
-checksummed snapshot of the live feeds in `tests/fixtures/`.
-
-```bash
-python3 -m pip install jsonschema   # the only dependency the offline path needs
-
-python3 scripts/capture_fixtures.py --verify   # re-hash the snapshot
-python3 scripts/run_cycle.py                   # one full fleet cycle
-python3 -m unittest discover -s tests          # 473 tests
-```
-
-The suite is CPU-bound rather than slow on the network, and one module accounts for almost
-all of it: `test_pipeline` takes about 1,824s, `test_fleet_end_to_end` 161s, and every other
-module finishes in under 5s. CI runs `test_pipeline` as its own job for that reason.
-
-The console:
-
-```bash
-cd console && npm install && npm run build && npm test
-```
-
-## Run it against the live fleet
-
-This is the one entrypoint that reaches the internet: the federal registry first, then every
-active publisher's feed. Everything above this line stays offline.
-
-```bash
-python3 scripts/run_live_cycle.py --once                    # one cycle, into ./.fleet
-python3 scripts/run_live_cycle.py --interval 900            # on a cadence, until stopped
-python3 scripts/run_live_cycle.py --store firestore --project "$GOOGLE_CLOUD_PROJECT"
-```
-
-State survives the process. Publisher records keep what the gate decided, retained
-observations keep the window the streak and churn rules read, and the canonical source map
-keeps IDs stable, so a restart resumes the fleet instead of starting a new one.
-
 ## What it does
+
+The registry lists 41 publisher feeds across 40 organizations; a publisher is keyed on
+organization and feed name, and Colorado DOT publishes two.
 
 | Component | What it decides |
 |---|---|
-| Registry Warden | Which publishers exist, keyed on `(organization, feedname)` |
-| Publisher Agent | Reachability, freshness, conformance, contradiction, churn |
+| Registry Warden | Which publishers exist, discovered from the federal registry |
+| Publisher Agent | What one feed looked like this poll: reachability, freshness, conformance, contradiction, churn |
 | Trust Scorer | `ADMIT` / `WATCH` / `QUARANTINE`, on six versioned rules |
-| Screener | Whether publisher free text may cross an egress |
-| Reconciler | Which zones from different publishers are the same zone |
+| Screener | Whether publisher free text is safe to show or republish |
+| Reconciler | Which zones from different publishers are the same physical zone |
 | Evidence Packet | What a finding asserts, and who approved saying so |
 | Republisher | What enters the merged feed, and whether to publish at all |
 | Console | The only surface a human sees, and the approval gate |
@@ -170,8 +158,47 @@ flowchart TB
   class APPROVE human
 ```
 
-Gemini hangs off the side of the diagram on dotted lines with no edge into the gate. The poll sequence, the two content hashes, where state lives and what is
-wired against what is still a port are in `docs/architecture.md`.
+Gemini hangs off the side of the diagram on dotted lines, with no edge into the gate.
+The poll sequence, the content hashes, and where state lives are in
+`docs/architecture.md`.
+
+## Reproduce it
+
+Everything here runs offline, with no cloud account and no credentials, against a
+checksummed snapshot of the live feeds in `tests/fixtures/`.
+
+```bash
+python3 -m pip install jsonschema   # the only dependency the offline path needs
+
+python3 scripts/capture_fixtures.py --verify   # re-hash the snapshot
+python3 scripts/run_cycle.py                   # one full fleet cycle
+python3 -m unittest discover -s tests          # 473 tests
+```
+
+The suite is CPU-bound rather than slow on the network, and one module accounts for almost
+all of it: `test_pipeline` takes about 1,824s, `test_fleet_end_to_end` 161s, and every other
+module finishes in under 5s. CI runs `test_pipeline` as its own job for that reason.
+
+The console:
+
+```bash
+cd console && npm install && npm run build && npm test
+```
+
+## Run it against the live fleet
+
+This is the one entrypoint that reaches the internet: the federal registry first, then every
+active publisher's feed. Everything above this line stays offline.
+
+```bash
+python3 scripts/run_live_cycle.py --once                    # one cycle, into ./.fleet
+python3 scripts/run_live_cycle.py --interval 900            # on a cadence, until stopped
+python3 scripts/run_live_cycle.py --store firestore --project "$GOOGLE_CLOUD_PROJECT"
+```
+
+State survives the process. Publisher records keep what the gate decided, retained
+observations keep the window the streak and churn rules read, and the canonical source map
+keeps IDs stable, so a restart resumes the fleet instead of starting a new one.
 
 ## Three design decisions worth arguing with
 
