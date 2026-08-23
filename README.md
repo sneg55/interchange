@@ -36,7 +36,7 @@ $ python3 scripts/run_cycle.py
 ## See it live
 
 The operator console is running at
-**https://interchange-console-xl55uzo43q-uc.a.run.app**.
+**https://interchange.sawinyh.com**.
 
 Sign in with any Google account. Every account gets read-only viewer access; the
 Firestore security rules deny writes to all clients, so there is nothing a visitor can
