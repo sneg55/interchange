@@ -41,3 +41,6 @@ product-critic-output/
 
 # Loose console captures taken while reviewing.
 /*.png
+
+# Demo video source and renders. Submission machinery, not part of the system.
+media/
